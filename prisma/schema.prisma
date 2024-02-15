@@ -1,0 +1,76 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum FoodCategory {
+  APPETIZER
+  MAIN_COURSE
+  DESSERT
+}
+
+enum FoodType {
+  VEG
+  NON_VEG
+}
+
+model Foods {
+  id           Int        @id @default(autoincrement())
+  name         String
+  price        Float
+  imageUrl     String?
+  availability Boolean @default(true)
+  category     FoodCategory
+  foodType     FoodType
+  isDeleted    Boolean   @default(false)
+  billItems    BillItem[]
+   @@map("tbl_foods")
+}
+
+model User {
+  id          Int      @id @default(autoincrement())
+  name        String 
+  username    String @unique
+  password    String
+  email       String
+  phone       BigInt
+  isDeleted   Boolean   @default(false)
+  bills       Bill[]
+  @@map("tbl_users")
+} 
+
+model Bill {
+  id          Int      @id @default(autoincrement())
+  createdAt   DateTime @default(now())
+  total       Float
+  gst         Float
+  discount    Float
+  netAmount   Float
+  customerName String
+  mobileNumber String
+  billDate    DateTime @updatedAt
+  userId      Int 
+  isDeleted   Boolean   @default(false)
+  user        User     @relation(fields: [userId], references: [id])
+  billItems   BillItem[]
+  @@map("tbl_bills")
+} 
+
+model BillItem {
+  id        Int      @id @default(autoincrement())
+  quantity  Int
+  price     Int
+  isDeleted Boolean   @default(false)
+  billId    Int
+  bill      Bill     @relation(fields: [billId], references: [id])
+  foodItemId Int
+  foodItem   Foods @relation(fields: [foodItemId], references: [id])
+  @@map("tbl_billitems")
+}
