@@ -20,7 +20,8 @@ const RegisterUser = async (req, res) => {
         username,
         password,
         email,
-        phone,
+        // Convert BigInt phone to string
+        phone: phone.toString(),
       },
     });
 
@@ -28,9 +29,16 @@ const RegisterUser = async (req, res) => {
       throw new CustomError("Cannot register user", 500);
     }
 
-    res.status(201).json(user);
+    // Convert any BigInt values to strings or numbers
+    const userToSend = {
+      ...user,
+      // Convert any BigInt values to strings or numbers
+      phone: user.phone.toString(),
+      // Add other fields as needed
+    };
+
+    res.status(201).json(userToSend);
   } catch (error) {
-   
     console.error(error);
     res.status(error.statusCode || 500).json({ error: error.message });
   }
@@ -46,8 +54,8 @@ const userlogin = async (req, res) => {
     where: { username: userName },
   });
 
-  if (!user.password === password) {
-    throw new Error("Incorrect password", 401);
+  if (!user || user.password !== password) {
+    throw new CustomError("Incorrect username or password", 401);
   }
 
   const token = jwt.sign({
@@ -61,21 +69,19 @@ const userlogin = async (req, res) => {
 
   console.log(token)
 
-  res.status(200).json(
-    token,
-  );
+  res.status(200).json({ token });
 };
 
 const userCurrentController = async (req, res) => {
   const token = req.user;
   if (!token) {
-    throw new CustomError("token not available", 401);
+    throw new CustomError("Token not available", 401);
   }
-  
+  // Add logic to handle the current user based on the token
 };
 
 module.exports = {
   RegisterUser,
-  userCurrentController,
   userlogin,
+  userCurrentController,
 };
