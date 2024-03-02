@@ -7,8 +7,8 @@ const cors = require('cors')
 const userRoute = require('./routes/usersroute');
 const foodRoute = require('./routes/foodroute');
 const billRoute = require('./routes/billsroute');
+const adminroute = require('./routes/admin.user.route')
 
-const jwt = require('jsonwebtoken');
 app.use(cors());
   
 const port = process.env.PORT || 5000;
@@ -17,6 +17,7 @@ app.use(express.json())
 app.use('/api/users', userRoute);
 app.use('/api/foodItems',AuthVerify, foodRoute);
 app.use('/api/bills',AuthVerify, billRoute);
+app.use("/api/admin",adminroute)
 
 app.listen(port, () => {
   console.log('server started at ', port);

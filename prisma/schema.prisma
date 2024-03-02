@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -10,15 +7,9 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum FoodCategory {
-  APPETIZER
-  MAIN_COURSE
-  DESSERT
-}
-
 enum FoodType {
-  VEG
-  NON_VEG
+  veg
+  nonveg
 }
 
 model Foods {
@@ -27,7 +18,6 @@ model Foods {
   price        Float
   imageUrl     String?
   availability Boolean @default(true)
-  category     FoodCategory
   foodType     FoodType
   isDeleted    Boolean   @default(false)
   billItems    BillItem[]
@@ -46,15 +36,19 @@ model User {
   @@map("tbl_users")
 } 
 
+model Admin {
+  id          Int      @id @default(autoincrement())
+  name        String 
+  username    String @unique
+  password    String
+}
+
 model Bill {
   id          Int      @id @default(autoincrement())
   createdAt   DateTime @default(now())
   total       Float
   gst         Float
-  discount    Float
   netAmount   Float
-  customerName String
-  mobileNumber String
   billDate    DateTime @updatedAt
   userId      Int 
   isDeleted   Boolean   @default(false)

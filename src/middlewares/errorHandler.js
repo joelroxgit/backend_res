@@ -1,6 +1,6 @@
 const { constants } = require("../utils/customError");
 const errorHandler = (err, req, res, next) => {
-  const statusCode = res.statusCode ? res.statusCode : 500;
+  const statusCode = err.statusCode ? err.statusCode : res.statuscode ? res.statusCode : 500;
   const errorType = Object.keys(constants).find(
     (key) => constants[key] == statusCode
   );

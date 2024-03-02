@@ -11,8 +11,8 @@ const getfoodController = async (req, res, next) => {
 };
 
 const createfoodController = async (req, res) => {
-  const { name, price, imageUrl, category, foodType } = req.body;
-  if (!name|| !price || !imageUrl || !category || !foodType) {
+  const { name, price, imageUrl, foodType } = req.body;
+  if (!name|| !price || !imageUrl || !foodType) {
     throw new Error("All fields are mandatory", 400);
   }
 
@@ -21,7 +21,6 @@ const createfoodController = async (req, res) => {
       name,
       price : parseFloat(price),
       imageUrl,
-      category,
       foodType
     },
   });
@@ -34,13 +33,13 @@ const createfoodController = async (req, res) => {
 };
 
 const updatefoodController = async (req, res) => {
-  const { id } = req.body;
-  if (id) {
+  const { id } = req.params;
+  if (!id) {
     throw new Error("All fields are mandatory", 400);
   }
 
   const updatedfoodItem = await db.Foods.update({
-    where: { id: data.id },
+    where: { id:parseInt(id) },
     data: req.body,
   });
 
@@ -52,10 +51,9 @@ const updatefoodController = async (req, res) => {
 };
 
 const deletefoodController = async (req, res) => {
-  const id = req.params.id;
-
+  const {id} = req.params;
   const foodItems = await db.Foods.delete({
-    where: { id: id },
+    where: { id: parseInt(id) },
   });
 
   if (!foodItems) {
@@ -66,10 +64,9 @@ const deletefoodController = async (req, res) => {
 };
 
 const getfoodbyId = async (req, res) => {
-  const id = await req.params.id;
-
+  const {id} = await req.params;
   const foodItem = await db.Foods.findUnique({
-    where: { id: id },
+    where: { id: parseInt(id) },
   });
 
   if (!foodItem) {

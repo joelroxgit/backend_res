@@ -2,6 +2,15 @@ const db = require("../utils/config");
 const jwt = require('jsonwebtoken');
 const CustomError = require("../utils/customError");
 
+const getUser = async (req,res) =>{
+  const user = await db.User.findMany();
+  if (!user) {
+    errorMandatory(res);
+  }
+  res.status(200).json(user);
+};
+
+
 const RegisterUser = async (req, res) => {
   const { name, username, password, phone, email } = req.body;
 
@@ -20,7 +29,6 @@ const RegisterUser = async (req, res) => {
         username,
         password,
         email,
-        // Convert BigInt phone to string
         phone: phone.toString(),
       },
     });
@@ -28,16 +36,7 @@ const RegisterUser = async (req, res) => {
     if (!user) {
       throw new CustomError("Cannot register user", 500);
     }
-
-    // Convert any BigInt values to strings or numbers
-    const userToSend = {
-      ...user,
-      // Convert any BigInt values to strings or numbers
-      phone: user.phone.toString(),
-      // Add other fields as needed
-    };
-
-    res.status(201).json(userToSend);
+    res.status(201).json(user);
   } catch (error) {
     console.error(error);
     res.status(error.statusCode || 500).json({ error: error.message });
@@ -45,22 +44,32 @@ const RegisterUser = async (req, res) => {
 };
 
 const userlogin = async (req, res) => {
-  const { userName, password } = req.body;
+  const { userName, password, role } = req.body;
   if (!userName || !password) {
     throw new CustomError("all fields are mandatory", 400);
   }
+  let payload;
+  if(role == 'user'){
+     payload = await db.user.findUnique({
+      where: { username: userName },
+    });
+  } 
+  if(role == 'admin'){
+     payload = await db.admin.findUnique({
+      where : {
+        username : userName
+      }
+    }) 
+  }
 
-  const user = await db.user.findUnique({
-    where: { username: userName },
-  });
-
-  if (!user || user.password !== password) {
+  if (!payload || payload.password !== password) {
     throw new CustomError("Incorrect username or password", 401);
   }
 
   const token = jwt.sign({
-    userName: user.username,
-    userId: user.id,
+    userName: payload.username,
+    userId: payload.id,
+    role,
   }, process.env.SECRET_KEY);
   
   if (!token) {
@@ -73,14 +82,17 @@ const userlogin = async (req, res) => {
 };
 
 const userCurrentController = async (req, res) => {
-  const token = req.user;
-  if (!token) {
-    throw new CustomError("Token not available", 401);
+  if (!req.user) {
+    throw new CustomError("Authorization token Invalid or missing", 401);
   }
-  // Add logic to handle the current user based on the token
+  res.status(200).json(req.user);
 };
 
+
+
+
 module.exports = {
+  getUser,
   RegisterUser,
   userlogin,
   userCurrentController,

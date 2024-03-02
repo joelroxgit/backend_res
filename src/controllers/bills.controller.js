@@ -6,7 +6,7 @@ const { errorMandatory } = require("../middlewares/errorHandler");
 const getBillsController = async (req, res, next) => {
   const bills = await db.bill.findMany();
   if (!bills) {
-    throw new Error("Cant get the Data");
+    throw new customError("Cant get the Data");
   }
 
   res.status(200).json({ bills });
@@ -16,25 +16,19 @@ const getBillsController = async (req, res, next) => {
 const createBillController = async (req, res) => {
   const {
     gst,
-    discount,
     netAmount,
-    total,
-    customerName,
-    mobileNumber
+    total
   } = req.body;
   const userId = req.userId;
-  if (!total || !customerName  || !mobileNumber ||!gst ||!discount ||!netAmount) {
+  if (!total ||!gst ||!netAmount) {
     errorMandatory(res);
   }
   const bill = await db.bill.create({
     data:{
       gst,
-    discount,
-    netAmount,
-    total,
-    customerName,
-    mobileNumber,
-    userId
+      netAmount,
+      total,
+      userId
     }
   });
 
@@ -48,19 +42,18 @@ const createBillController = async (req, res) => {
 
 const updateBillController = async (req, res) => {
   const { total,
-    customerName,
-    mobileNumber} = req.body;
-  if (!total || !customerName || !mobileNumber) {
-    throw new Error("All fields are mandatory", 400);
+    } = req.body;
+  if (!total) {
+    throw new customError("All fields are mandatory", 400);
   }
 
   const updatedBill = await db.bill.update({
     where: { id: data.id },
-    data: {
-      total,
-      customerName,
-      mobileNumber
-    },
+      data: {
+        gst,
+        netAmount,
+        total
+      },
   });
 
   if (!updatedBill) {
@@ -71,11 +64,10 @@ const updateBillController = async (req, res) => {
 };
 
 const deleteBillController = async (req, res) => {
-  const id = req.params.id;
-
+  const id = req.params;
   const bill = await db.bill.delete({
-    where: { id: id },
-  });
+      where: { id: parseInt(id) },
+    });
 
   if (!bill) {
     throw new customError("cannot delete bill", 500);
@@ -83,16 +75,13 @@ const deleteBillController = async (req, res) => {
 };
 
 const getbillByid = async (req, res) => {
-  const id = req.params.id;
-
+  const id = req.params;
   const bill = await db.bill.findUnique({
-    where: { id: id },
+    where: { id: parseInt(id) },
   });
-
   if (!bill) {
     throw new customError("cannot find bill", 500);
   }
-
   res.status(200).json(bill);
 };
 
