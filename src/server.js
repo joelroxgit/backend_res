@@ -10,7 +10,6 @@ const billRoute = require('./routes/billsroute');
 const adminroute = require('./routes/admin.user.route')
 
 app.use(cors());
-  
 const port = process.env.PORT || 5000;
 app.use(express.json())
 

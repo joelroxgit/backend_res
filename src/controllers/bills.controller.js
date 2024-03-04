@@ -14,27 +14,29 @@ const getBillsController = async (req, res, next) => {
 
 
 const createBillController = async (req, res) => {
-  const {
-    gst,
-    netAmount,
-    total
-  } = req.body;
-  const userId = req.userId;
-  if (!total ||!gst ||!netAmount) {
-    errorMandatory(res);
-  }
-  const bill = await db.bill.create({
-    data:{
-      gst,
-      netAmount,
-      total,
-      userId
-    }
-  });
 
-  if (!bill) {
-    throw new customError("Cannot create bill", 500);
-  }
+  const { items, mobileNumber,customerName } = req.body;
+
+  let netAmount;
+  items.forEach(item => {
+    netAmount += quantity * price;
+    
+  });
+  const gst = netAmount * 10/100;
+  const bill = await db.bill.create({
+    data : {
+      netAmount,
+      gst,
+      total : netAmount + gst,
+      mobileNumber,
+      customerName,
+      billItems : {
+        createMany : {
+          data : items
+        }
+      }
+    }
+  })
 
   res.status(203).json(bill);
 };

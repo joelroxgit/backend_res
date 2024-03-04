@@ -50,12 +50,12 @@ const userlogin = async (req, res) => {
   }
   let payload;
   if(role == 'user'){
-     payload = await db.user.findUnique({
+     payload = await db.User.findUnique({
       where: { username: userName },
     });
   } 
   if(role == 'admin'){
-     payload = await db.admin.findUnique({
+     payload = await db.Admin.findUnique({
       where : {
         username : userName
       }
@@ -78,7 +78,7 @@ const userlogin = async (req, res) => {
 
   console.log(token)
 
-  res.status(200).json({ token });
+  res.status(200).json({ token , role});
 };
 
 const userCurrentController = async (req, res) => {
