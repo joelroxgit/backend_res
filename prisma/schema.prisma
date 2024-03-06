@@ -30,7 +30,7 @@ model User {
   username    String @unique
   password    String
   email       String
-  phone       BigInt
+  phone       String
   isDeleted   Boolean   @default(false)
   @@map("tbl_users")
 } 

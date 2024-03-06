@@ -33,7 +33,7 @@ const RegisterUser = async (req, res) => {
         username,
         password,
         email,
-        phone: phone.toString(),
+        phone
       },
     });
 
