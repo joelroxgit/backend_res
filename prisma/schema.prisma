@@ -32,7 +32,6 @@ model User {
   email       String
   phone       BigInt
   isDeleted   Boolean   @default(false)
-  bills       Bill[]
   @@map("tbl_users")
 } 
 
@@ -50,9 +49,7 @@ model Bill {
   gst         Float
   netAmount   Float
   billDate    DateTime @default(now())
-  userId      Int 
   isDeleted   Boolean   @default(false)
-  user        User     @relation(fields: [userId], references: [id])
   billItems   BillItem[]
   @@map("tbl_bills")
 } 
@@ -62,9 +59,11 @@ model BillItem {
   quantity  Int
   price     Int 
   isDeleted Boolean   @default(false)
+  foodItemName  String
   billId    Int
   bill      Bill     @relation(fields: [billId], references: [id])
   foodItemId Int
   foodItem   Foods @relation(fields: [foodItemId], references: [id])
+
   @@map("tbl_billitems")
 }

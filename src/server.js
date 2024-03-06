@@ -1,5 +1,6 @@
 const express = require('express');
 const app = express();
+const bodyParser = require('body-parser');
 const { config } = require('dotenv');
 config();
 const {AuthVerify} = require("../src/middlewares/Authverify");
@@ -8,7 +9,7 @@ const userRoute = require('./routes/usersroute');
 const foodRoute = require('./routes/foodroute');
 const billRoute = require('./routes/billsroute');
 const adminroute = require('./routes/admin.user.route')
-
+app.use(bodyParser.json());
 app.use(cors());
 const port = process.env.PORT || 5000;
 app.use(express.json())

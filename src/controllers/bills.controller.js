@@ -12,34 +12,46 @@ const getBillsController = async (req, res, next) => {
   res.status(200).json({ bills });
 };
 
+// billController.js
 
 const createBillController = async (req, res) => {
+  try {
+    const { selectedItems, totalAmount } = req.body;
+    console.log(selectedItems)
+    // Calculate netAmount and total based on the bill items data
+    const netAmount = totalAmount; // Placeholder, you should calculate it based on your logic
+    const gst = netAmount * 0.1; // Assuming GST is calculated as 10% of the total price
+    const total = netAmount + gst;
 
-  const { items, mobileNumber,customerName } = req.body;
-
-  let netAmount;
-  items.forEach(item => {
-    netAmount += quantity * price;
-    
-  });
-  const gst = netAmount * 10/100;
-  const bill = await db.bill.create({
-    data : {
-      netAmount,
-      gst,
-      total : netAmount + gst,
-      mobileNumber,
-      customerName,
-      billItems : {
-        createMany : {
-          data : items
+    // Create the bill and its associated bill items
+    const createdBill = await db.bill.create({
+      data: {
+        netAmount,
+        gst,
+        total,
+        billItems: {
+          createMany: {
+            data: selectedItems.map(item => ({
+              quantity: item.quantity,
+              foodItemName: item.name,
+              price: item.price, // Assuming price is available in selectedItems
+              foodItemId: item.id // Assuming 'id' is the unique identifier for the food item
+            }))
+          }
         }
+      },
+      include: {
+        billItems: true // Including bill items in the response
       }
-    }
-  })
+    });
 
-  res.status(203).json(bill);
+    res.status(201).json(createdBill);
+  } catch (error) {
+    console.error('Error creating bill:', error);
+    res.status(500).json({ error: 'Failed to create bill' });
+  }
 };
+
 
 
 const updateBillController = async (req, res) => {
